@@ -7,28 +7,33 @@ import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 import axios from 'axios'
 import './App.css'
+import { Loader,LoaderCircle } from 'lucide-react';
 
 function App() {
   const [ count, setCount ] = useState(0)
-  const [ code, setCode ] = useState(` function sum() {
+  const [loading, setLoading] = useState(false)
+  const [ code, setCode ] = useState(`//Enter Your Code here to get reviewed:  
+  function sum() {
   return 1 + 1
 }`)
 
-  const [ review, setReview ] = useState(``)
+  const [ review, setReview ] = useState(`Get your Reviewed Code result by AI here:`)
 
   useEffect(() => {
     prism.highlightAll()
   }, [])
 
   async function reviewCode() {
+    setLoading(true)
     const response = await axios.post('https://ai-code-reviewer-project.onrender.com/ai/get-review', { code })
     setReview(response.data)
+    setLoading(false)
   }
 
   return (
     <>
       <main>
-        <div className="left">
+        <div className="left">     
           <div className="code">
             <Editor
               value={code}
@@ -45,10 +50,20 @@ function App() {
               }}
             />
           </div>
-          <div
-            onClick={reviewCode}
-            className="review">Review</div>
-        </div>
+          {loading?
+        <><button className='review'><div><LoaderCircle className='animate-spin'/>Reviewing Code...</div></button></>:<><button className='review' onClick={reviewCode}><div 
+              
+              >Review</div></button></>}
+          </div>
+              {/* <div onClick={reviewCode} className='review'>
+           <Button disabled={loading}>
+            
+            {loading?<><LoaderCircle className="animate-spin"/>Reviewing Code...</>:"Review"}
+          </Button>
+          </div> */}
+           
+           
+           
         <div className="right">
           <Markdown
 
@@ -57,6 +72,7 @@ function App() {
           >{review}</Markdown>
         </div>
       </main>
+      
     </>
   )
 }
